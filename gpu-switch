@@ -1,0 +1,22 @@
+#!/bin/sh
+
+currentOptions="$(cat /etc/modprobe.d/vfio.conf)"
+nvidiaOptions="options vfio-pci ids=10de:1b06,10de:10ef"
+amdOptions="options vfio-pci ids=1002:68f9,1002:aa68"
+
+if [ "$currentOptions" = "$amdOptions" ]
+then
+    echo $nvidiaOptions > /etc/modprobe.d/vfio.conf
+    echo "Disabling NVIDIA GPU"
+    pacman -S nvidia
+    echo "Don't forget to change the GPU in your VM!"
+    mkinitcpio -P
+    reboot
+else
+    echo $amdOptions > /etc/modprobe.d/vfio.conf
+    echo "Disabling AMD GPU"
+    pacman -S nvidia-dkms
+    echo "Don't forget to change the GPU in your VM!"
+    mkinitcpio -P
+    reboot
+fi
